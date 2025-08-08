@@ -75,8 +75,15 @@ jobs:
       - name: Download with aria2
         run: |
 
-          aria2c -d ${{ github.event.inputs.downloadDir }} ${{ github.event.inputs.aria2Args }} -o ${{ github.event.inputs.outname }} ${{ github.event.inputs.btLink }}
-          
+          # 使用数组构建命令，避免特殊字符解析问题
+          aria2c_cmd=(
+          aria2c
+          --dir="${{ github.event.inputs.downloadDir }}"
+          ${{ github.event.inputs.aria2Args }}
+          --out="${{ github.event.inputs.outname }}"
+          "${{ github.event.inputs.btLink }}"
+          )
+          "${aria2c_cmd[@]}"
           
       
       - name: List downloaded files
@@ -116,7 +123,7 @@ jobs:
           set timeout 10
           send "upload\r"
           expect "*文件路径*"
-          send "${{ github.event.inputs.downloadDir }}/${{ github.event.inputs.outname }}\r"
+          send "\"${{ github.event.inputs.downloadDir }}/${{ github.event.inputs.outname }}\"\r"
           expect {
             "*同名文件*" {
               send "2\r"
