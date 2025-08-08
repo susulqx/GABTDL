@@ -80,7 +80,7 @@ jobs:
       - name: Download with aria2
         run: |
           # 构建aria2命令
-          ARIA2_CMD="aria2c --dir=${{ github.event.inputs.downloadDir }} ${{ github.event.inputs.aria2Args }} --out=${{ github.event.inputs.outname }} '${{ github.event.inputs.btLink }}'"
+          ARIA2_CMD=ARIA2_CMD="aria2c --dir='${{ github.event.inputs.downloadDir }}' ${{ github.event.inputs.aria2Args }} --out='${{ github.event.inputs.outname }}' '${{ github.event.inputs.btLink }}'"
           
           # 显示并执行命令
           echo "执行命令: $ARIA2_CMD"
