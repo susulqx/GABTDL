@@ -15,7 +15,7 @@ on:
       downloadDir:
         description: '下载目录（相对路径）'
         required: false
-        default: 'downloads'
+        default: '~/Downloads'
         type: string
       aria2Args:
         description: 'aria2额外参数（如：--max-download-limit=10M）'
@@ -35,11 +35,6 @@ on:
         options:
           - 'true'
           - 'false'
-      artifactRetentionDays:
-        description: 'Artifact保留天数'
-        required: false
-        default: '7'
-        type: number
       uploadTo123Cloud:
         description: '是否上传到123云盘'
         required: false
@@ -97,7 +92,6 @@ jobs:
         with:
           name: bt-downloads
           path: ${{ github.event.inputs.downloadDir }}
-          retention-days: ${{ github.event.inputs.artifactRetentionDays }}
       
       - name: Upload to 123 Cloud
         if: ${{ github.event.inputs.uploadTo123Cloud == 'true' }}
