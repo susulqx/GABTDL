@@ -15,7 +15,7 @@ on:
       aria2Args:
         description: 'aria2额外参数（如：--max-download-limit=10M）'
         required: false
-        default: '--select-file=all'
+        default: ''
         type: string
       proxy:
         description: '代理设置（如：http://proxy:port）'
