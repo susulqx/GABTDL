@@ -9,18 +9,13 @@ on:
         required: true
         type: string
       outname:
-        description: '下载文件名'
+        description: '下载文件名（不带后缀）'
         required: true
-        type: string
-      downloadDir:
-        description: '下载目录（相对路径）'
-        required: false
-        default: '~/Downloads'
         type: string
       aria2Args:
         description: 'aria2额外参数（如：--max-download-limit=10M）'
         required: false
-        default: '-x 16 -s 16'
+        default: ''
         type: string
       proxy:
         description: '代理设置（如：http://proxy:port）'
@@ -38,7 +33,7 @@ on:
       uploadTo123Cloud:
         description: '是否上传到123云盘'
         required: false
-        default: 'true'
+        default: false'
         type: choice
         options:
           - 'true'
@@ -75,13 +70,12 @@ jobs:
       - name: Download with aria2
         run: |
 
-          # 使用数组构建命令，避免特殊字符解析问题
           aria2c_cmd=(
           aria2c
-          --dir="${{ github.event.inputs.downloadDir }}"
+          --dir="${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}"
           ${{ github.event.inputs.aria2Args }}
-          --out="${{ github.event.inputs.outname }}"
           "${{ github.event.inputs.btLink }}"
+          -x "$(nproc --all)" -s "$(nproc --all)"
           )
           "${aria2c_cmd[@]}"
           
@@ -89,25 +83,25 @@ jobs:
       - name: List downloaded files
         run: |
           echo "下载目录内容:"
-          ls -la ${{ github.event.inputs.downloadDir }}
+          ls -la "${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}"
       
       - name: Upload as artifact
         if: ${{ github.event.inputs.saveAsArtifact == 'true' }}
         uses: actions/upload-artifact@v4  # 已将v3更新为v4，解决deprecated问题
         with:
           name: bt-downloads
-          path: ${{ github.event.inputs.downloadDir }}
+          path: "${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}"
       
       - name: Upload to 123 Cloud
         if: ${{ github.event.inputs.uploadTo123Cloud == 'true' }}
         env:
-          CLOUD123_USERNAME: ${{ secrets.USERNAME }}  # 修复了secretsUSERNAME的语法错误
+          CLOUD123_USERNAME: ${{ secrets.USERNAME }} 
           CLOUD123_PASSWORD: ${{ secrets.PASSWORD }}
         run: |
           # 安装123云盘上传工具
           mkdir 123Cloud
-          git clone https://github.com/qq54288/123pan.git 123Cloud  # 直接克隆到目标目录，避免路径问题
-          cd 123Cloud
+          git clone https://github.com/qq54288/123pan.git ${GITHUB_WORKSPACE}/123Cloud  # 直接克隆到目标目录，避免路径问题
+          cd ${GITHUB_WORKSPACE}/123Cloud
           pip install -r requirements.txt
           # 注意：原脚本使用了expect语法但未安装expect，需要补充安装
           sudo apt install -y expect
@@ -120,7 +114,6 @@ jobs:
           send "${{ secrets.USERNAME }}\r"
           expect "*passWord*"
           send "${{ secrets.PASSWORD }}\r"
-          set timeout 10
           send "upload\r"
           expect "*文件路径*"
           send "\"${{ github.event.inputs.downloadDir }}/${{ github.event.inputs.outname }}\"\r"
