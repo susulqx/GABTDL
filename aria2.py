@@ -25,7 +25,7 @@ def monitor_aria2(aria2_args):
         print(f"Aria2启动参数: {' '.join(aria2_args)}")
         
         # 监测输出的关键词，不区分大小写
-        target_keyword = "download completed"
+        target_keyword = "Download complete"
         
         # 实时读取输出
         for line in process.stdout:
