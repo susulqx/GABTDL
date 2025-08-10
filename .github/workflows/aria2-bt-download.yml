@@ -65,6 +65,8 @@ jobs:
         run: |
           wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.conf
           wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.py
+          wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/P3TERX/aria2.conf/refs/heads/master/dht.dat
+          wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/P3TERX/aria2.conf/refs/heads/master/dht6.dat
           bash <(curl -fsSL git.io/tracker.sh) "${GITHUB_WORKSPACE}/aria2.conf"
           aria2c_cmd=(
             python ${GITHUB_WORKSPACE}/aria2.py
