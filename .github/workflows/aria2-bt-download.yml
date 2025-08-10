@@ -71,12 +71,13 @@ jobs:
       
       - name: Download with aria2
         run: |
+          wget https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.conf -P ${GITHUB_WORKSPACE} -y -O aria2.conf
+          bash <(curl -fsSL git.io/tracker.sh) "${GITHUB_WORKSPACE}/aria2.conf"
           aria2c_cmd=(
             aria2c
             --dir="${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}"
-            ${{ github.event.inputs.aria2Args }}
+            ${{ github.event.inputs.aria2Args }} --conf-path="${GITHUB_WORKSPACE}/aria2.conf"
             "${{ github.event.inputs.btLink }}"
-            -x "$(nproc --all)" -s "$(nproc --all)"
           )
           "${aria2c_cmd[@]}"
       
