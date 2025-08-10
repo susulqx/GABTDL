@@ -2,12 +2,13 @@ import subprocess
 import time
 import signal
 import sys
-import argparse
 
 def monitor_aria2(aria2_args):
     """
     启动Aria2进程，监测其输出，当检测到下载完成时终止进程
     
+    参数:
+        aria2_args: 传递给aria2c的命令行参数列表
     """
     try:
         # 启动Aria2进程，捕获 stdout 和 stderr
@@ -34,7 +35,7 @@ def monitor_aria2(aria2_args):
             # 检查是否包含任务完成的关键词（不区分大小写）
             if target_keyword.lower() in line.lower():
                 print("\n检测到下载任务完成，准备终止Aria2进程...")
-                time.sleep(3)
+                time.sleep(5)
                 # 先尝试优雅终止
                 process.send_signal(signal.SIGTERM)
                 
@@ -43,7 +44,7 @@ def monitor_aria2(aria2_args):
                     if process.poll() is not None:
                         print("Aria2进程已正常终止")
                         return
-                    time.sleep(3)
+                    time.sleep(5)
                 
                 # 如果优雅终止失败，强制终止
                 print("优雅终止失败，尝试强制终止Aria2进程...")
@@ -71,16 +72,12 @@ def monitor_aria2(aria2_args):
         sys.exit(1)
 
 if __name__ == "__main__":
-    # 使用argparse处理命令行参数
-    parser = argparse.ArgumentParser(description='监测Aria2下载并在完成后终止进程')
-    parser.add_argument('aria2_args', nargs=argparse.REMAINDER, 
-                       help='传递给aria2c的命令行参数')
-    
-    args = parser.parse_args()
-    
-    if not args.aria2_args:
+    # 直接获取命令行参数（排除脚本名称本身）
+    if len(sys.argv) < 2:
         print("请提供Aria2的启动参数，例如下载链接或种子文件路径")
         print("使用示例: python aria2_monitor.py --dir ./downloads http://example.com/file.zip")
         sys.exit(1)
     
-    monitor_aria2(args.aria2_args)
+    # 所有参数（从索引1开始）都传递给aria2
+    aria2_arguments = sys.argv[1:]
+    monitor_aria2(aria2_arguments)
