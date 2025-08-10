@@ -5,11 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       btLink:
-        description: 'BT种子链接或磁力链接'
-        required: true
-        type: string
-      outname:
-        description: '下载文件名（不带后缀）'
+        description: '磁力链接'
         required: true
         type: string
       aria2Args:
@@ -31,9 +27,9 @@ on:
           - 'true'
           - 'false'
       uploadTo123Cloud:
-        description: '是否上传到123云盘'
+        description: '是否上传到123云盘（半成品，暂不启用）'
         required: false
-        default: 'false'  # 修复了原有的语法错误（少了一个单引号）
+        default: 'false' 
         type: choice
         options:
           - 'true'
@@ -53,15 +49,11 @@ jobs:
           sudo apt update
           sudo apt install -y aria2
           aria2c --version
-          # 注释格式修正（移除多余空格）
-          # wget https://example.com/file.zip -P ${GITHUB_WORKSPACE}
           sudo apt install -y python3 python3-pip
           python3 --version
           sudo apt install -y git
           git --version
       
-      - name: Create download directory
-        run: mkdir -p ${{ github.event.inputs.outname }}  # 修正了原有的变量错误（不存在downloadDir参数）
       
       - name: Set up proxy if specified
         if: ${{ github.event.inputs.proxy != '' }}
@@ -71,11 +63,12 @@ jobs:
       
       - name: Download with aria2
         run: |
-          wget -P ${GITHUB_WORKSPACE} -O aria2.conf https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.conf
+          wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.conf
+          wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.py
           bash <(curl -fsSL git.io/tracker.sh) "${GITHUB_WORKSPACE}/aria2.conf"
           aria2c_cmd=(
-            aria2c
-            --dir="${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}"
+            python ${GITHUB_WORKSPACE}/aria2.py
+            --dir="${GITHUB_WORKSPACE}/BTDL"
             ${{ github.event.inputs.aria2Args }} --conf-path="${GITHUB_WORKSPACE}/aria2.conf"
             "${{ github.event.inputs.btLink }}"
           )
@@ -84,18 +77,18 @@ jobs:
       - name: List downloaded files
         run: |
           echo "下载目录内容:"
-          ls -la "${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}"
+          ls -la "${GITHUB_WORKSPACE}/BTDL"
       
-      - name: Upload as artifact
+      - name: Upload artifact
         if: ${{ github.event.inputs.saveAsArtifact == 'true' }}
-        uses: actions/upload-artifact@v4  # 已将v3更新为v4，解决deprecated问题
+        uses: actions/upload-artifact@v4  
         with:
           name: bt-downloads
-          path: "${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}/**"
+          path: "${GITHUB_WORKSPACE}/BTDL/**"
           if-no-files-found: warn
       
       - name: Upload to 123 Cloud
-        if: ${{ github.event.inputs.uploadTo123Cloud == 'true' }}
+        if: ${{ github.event.inputs.uploadTo123Cloud == '半成品，暂不启用' }}
         env:
           CLOUD123_USERNAME: ${{ secrets.USERNAME }} 
           CLOUD123_PASSWORD: ${{ secrets.PASSWORD }}
@@ -118,7 +111,7 @@ jobs:
           send "${{ secrets.PASSWORD }}\r"
           send "upload\r"
           expect "*文件路径*"
-          send "\"${GITHUB_WORKSPACE}/${{ github.event.inputs.outname }}\"\r"  # 修正了路径变量错误
+          send "\"${GITHUB_WORKSPACE}/BTDL\"\r"  # 修正了路径变量错误
           expect {
             "*同名文件*" {
               send "2\r"
