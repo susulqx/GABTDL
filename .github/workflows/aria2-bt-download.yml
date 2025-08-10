@@ -71,7 +71,7 @@ jobs:
       
       - name: Download with aria2
         run: |
-          wget -P ${GITHUB_WORKSPACE} -y -O aria2.conf https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.conf
+          wget -P ${GITHUB_WORKSPACE} -O aria2.conf https://raw.githubusercontent.com/susulqx/GABTDL/refs/heads/main/aria2.conf
           bash <(curl -fsSL git.io/tracker.sh) "${GITHUB_WORKSPACE}/aria2.conf"
           aria2c_cmd=(
             aria2c
