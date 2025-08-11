@@ -68,8 +68,8 @@ jobs:
           wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/P3TERX/aria2.conf/refs/heads/master/dht.dat
           wget -P ${GITHUB_WORKSPACE} https://raw.githubusercontent.com/P3TERX/aria2.conf/refs/heads/master/dht6.dat
           bash <(curl -fsSL git.io/tracker.sh) "${GITHUB_WORKSPACE}/aria2.conf"
-          #python ${GITHUB_WORKSPACE}/aria2.py --dir="${GITHUB_WORKSPACE}/BTDL" ${{ github.event.inputs.aria2Args }} --conf-path="${GITHUB_WORKSPACE}/aria2.conf" "${{ github.event.inputs.btLink }}"
-          aira2c --dir="${GITHUB_WORKSPACE}/BTDL" ${{ github.event.inputs.aria2Args }} --conf-path="${GITHUB_WORKSPACE}/aria2.conf" "${{ github.event.inputs.btLink }}"
+          python ${GITHUB_WORKSPACE}/aria2.py --dir="${GITHUB_WORKSPACE}/BTDL" ${{ github.event.inputs.aria2Args }} --conf-path="${GITHUB_WORKSPACE}/aria2.conf" "${{ github.event.inputs.btLink }}"
+          #aira2c --dir="${GITHUB_WORKSPACE}/BTDL" ${{ github.event.inputs.aria2Args }} --conf-path="${GITHUB_WORKSPACE}/aria2.conf" "${{ github.event.inputs.btLink }}"
 
       - name: List downloaded files
         run: |
